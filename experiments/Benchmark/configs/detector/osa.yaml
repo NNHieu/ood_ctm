@@ -1,0 +1,13 @@
+defaults:
+  - base.yaml
+
+classname: OSA
+layer_index: 0
+rank_rtol: null
+class_dir: mean
+add_bg_score: False
+weight_type: inv
+remove_mean_dir: True
+cache_feats: null
+cache_pca: null
+device: null

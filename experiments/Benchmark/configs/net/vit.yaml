@@ -1,0 +1,5 @@
+init_params:
+  _target_: model_zoo.vit.get_model
+  name: google/vit-base-patch16-224-in21k
+ckpt_path: ${paths.ckpt_root}/${in_dataset}_pretrained/vit-base-patch16-224-in21k.pth
+preprocessor: True

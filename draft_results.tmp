@@ -1,0 +1,37 @@
+Test Results!!!!!
+   id_data   ood_data  is_near     detector  version  num_runs      auroc       aupr        fpr
+0  cifar10       SVHN    False  OSA_layer=0  osa-inv         1  98.882103  97.424095   5.835126
+1  cifar10     LSUN-C    False  OSA_layer=0  osa-inv         1  99.376313  99.395893   3.030000
+2  cifar10     LSUN-R    False  OSA_layer=0  osa-inv         1  98.939146  99.085777   4.430000
+3  cifar10       iSUN    False  OSA_layer=0  osa-inv         1  98.884286  99.106493   5.221289
+4  cifar10   Textures    False  OSA_layer=0  osa-inv         1  94.897842  96.846393  24.255319
+5  cifar10  CIFAR-100     True  OSA_layer=0  osa-inv         1  87.332981  88.105245  56.420000
+
+Mean Far-OOD Test Results
+                         auroc      aupr       fpr
+detector    version                               
+OSA_layer=0 osa-inv  98.195938  98.37173  8.554347
+
+Mean Near-OOD Test Results
+                         auroc       aupr    fpr
+detector    version                             
+OSA_layer=0 osa-inv  87.332981  88.105245  56.42
+
+
+
+Test Results!!!!!
+   id_data   ood_data  is_near     detector  version  num_runs      auroc       aupr        fpr
+0  cifar10       SVHN    False  OSA_layer=0  osa-inv         1  98.885716  97.433658   5.869699
+1  cifar10     LSUN-C    False  OSA_layer=0  osa-inv         1  99.378947  99.399198   3.060000
+2  cifar10     LSUN-R    False  OSA_layer=0  osa-inv         1  98.928744  99.076255   4.510000
+3  cifar10       iSUN    False  OSA_layer=0  osa-inv         1  98.877109  99.101101   5.322129
+4  cifar10   Textures    False  OSA_layer=0  osa-inv         1  94.902246  96.852734  24.255319
+5  cifar10  CIFAR-100     True  OSA_layer=0  osa-inv         1  87.331335  88.112077  56.600000
+Mean Far-OOD Test Results
+                         auroc       aupr       fpr
+detector    version                                
+OSA_layer=0 osa-inv  98.194552  98.372589  8.603429
+Mean Near-OOD Test Results
+                         auroc       aupr   fpr
+detector    version                            
+OSA_layer=0 osa-inv  87.331335  88.112077  56.6
