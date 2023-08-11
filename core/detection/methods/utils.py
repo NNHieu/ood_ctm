@@ -6,11 +6,16 @@ from tqdm import tqdm
 
 from sklearn.decomposition import IncrementalPCA
 
-def list_feature_by_class(features, labels):
+def list_feature_by_class(features, labels, preds=None):
+    # print(preds)
     num_class = labels.max().item() + 1
     features_by_class = {}
     for c in range(num_class):
-        inds = (labels == c).squeeze()
+        if preds is None:
+            inds = (labels == c).squeeze()
+        else:
+            inds = ((labels == c) * (preds == c)).squeeze()
+            # print(inds.sum())
         features_by_class[c] = features[inds]
     return features_by_class
 
@@ -91,6 +96,11 @@ class CalMeanClass:
             # b_features = b_features.cpu()
             labels = batch[1].squeeze().to(device)
             # outputs.append((probs, b_features, labels))
+            correct_inds = (preds == labels)
+            b_features = b_features[correct_inds]
+            labels = labels[correct_inds]
+            # print(b_features.shape, labels.shape)
+            # labels = preds
             class_means.index_add_(0, labels, b_features)
             class_counts.index_add_(0, labels, torch.ones_like(labels, dtype=torch.float))
         global_mean = class_means.sum(dim=0, keepdim=True) / class_counts.sum()
@@ -129,18 +139,22 @@ class CalCovClassWise:
             num_classes = probs.shape[-1]
             device = b_features.device
         
+        # device = 'cpu'
+
         # transformers = [IncrementalPCA(n_components=feat_size, batch_size=batch_size) for _ in range(num_classes)]
         Covs = [torch.zeros(feat_size, feat_size).to(device) for _ in range(num_classes)]
         counts = [0 for _ in range(num_classes)]
         class_means = torch.zeros(num_classes, feat_size).to(device)
         for batch in tqdm(train_loader, desc="Collect ref feats"):
             b_features, probs, preds = self._forward_collect(forward_fn, batch)
-            labels = batch[1].to(b_features.device)
+            preds = preds.to(device)
+            b_features = b_features.to(device)
+            labels = batch[1].to(device)
             # b_features = F.normalize(b_features, dim=1) 
 
             # b_features = b_features.cpu().numpy()
             # labels = labels.cpu().numpy()
-            class_features_list = list_feature_by_class(b_features, labels)
+            class_features_list = list_feature_by_class(b_features, labels, preds)
             for c in class_features_list.keys():
                 num_new = class_features_list[c].shape[0]
                 # Cov = Cov * (counts[c]/(counts[c] + num_new)) + (class_features_list[c].T @ class_features_list[c]) * (1/(counts[c] + num_new))
@@ -166,11 +180,11 @@ class CalCovClassWise:
         ranks = []
         # for c in range(num_classes):
         #     Cov[c] = Covs[c] / counts[c]
-        
-        Cov = torch.sum(Covs, dim=0) / counts.sum()
+        # Covs = torch.stack(Covs)
+        # Cov = torch.sum(Covs, dim=0) / counts.sum()
 
         for c in range(num_classes):
-            # Cov = Covs[c] / counts[c]
+            Cov = Covs[c] / counts[c]
             class_mean_dir = class_mean_dirs[c]
             u_u_T = class_mean_dir.unsqueeze(-1) @ class_mean_dir.unsqueeze(0)
             processed_cov = Cov - Cov @ u_u_T - u_u_T @ Cov + u_u_T @ Cov @ u_u_T

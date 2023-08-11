@@ -42,12 +42,15 @@ NORM_PARAMS = {
 DATASETS = {
     'cifar10': {
         # 'far': ['svhn', 'lsun-c', 'lsun-r', 'isun', 'textures',], # 'places365'],
-        'far': ['svhn', 'lsun-c', 'lsun-r', 'isun', 'textures', 'places365'],
+        # 'far': ['svhn', 'lsun-c', 'lsun-r', 'isun', 'textures', 'places365'],
+        'far': [],
         'near': ['cifar100']
     },
     'cifar100': {
         # 'far': ['svhn', 'lsun-c', 'lsun-r', 'isun', 'textures', ], # 'places365'],
-        'far': ['svhn', 'lsun-c', 'lsun-r', 'isun', 'textures', 'places365'],
+        # 'far': ['svhn', 'lsun-c', 'lsun-r', 'isun', 'textures', 'places365'],
+        'far': [],
+
         'near': ['cifar10']
     },
     'imagenet': {
@@ -146,7 +149,7 @@ def get_id_datasets_dict(DATA_ROOT: Path, in_dataset: str, test_transform=None):
         ds["test"] = dset.CIFAR10(DATA_ROOT, train=False, transform=test_transform) # type: ignore
         classes = ds['train'].classes
         NUM_CLASSES = 10
-        # ds['train'] = _random_subset(ds['train'], 10, seed=42)
+        ds['train'] = _random_subset(ds['train'], 1000, seed=42)
         logger.info(f"Loaded {len(ds['train'])} train and {len(ds['test'])} test examples from {in_dataset}")
 
     elif in_dataset == 'cifar100':
@@ -154,7 +157,7 @@ def get_id_datasets_dict(DATA_ROOT: Path, in_dataset: str, test_transform=None):
         ds["test"] = dset.CIFAR100(DATA_ROOT, train=False, transform=test_transform) # type: ignore
         classes = ds['train'].classes
         NUM_CLASSES = 100
-        # ds['train'] = _random_subset(ds['train'], 10, seed=42)
+        ds['train'] = _random_subset(ds['train'], 100, seed=42)
         logger.info(f"Loaded {len(ds['train'])} train and {len(ds['test'])} test examples from {in_dataset}")
 
     elif in_dataset == 'imagenet':

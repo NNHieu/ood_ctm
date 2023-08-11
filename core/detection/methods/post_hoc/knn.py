@@ -32,7 +32,7 @@ class KNNPostprocessor(BaseDetector):
         self.activation_log = np.concatenate(activation_log, axis=0)
         self.index = faiss.IndexFlatL2(feature.shape[1])
         res = faiss.StandardGpuResources() 
-        self.index = faiss.index_cpu_to_gpu(res, 0, self.index)
+        # self.index = faiss.index_cpu_to_gpu(res, 0, self.index)
         self.index.add(self.activation_log)
 
     
@@ -48,12 +48,17 @@ class KNNPostprocessor(BaseDetector):
         feature_normed = normalizer(feature.data.cpu().numpy())
         D, _ = self.index.search(
             feature_normed,
-            self.K,
+            # self.K,
+            100,
         )
-        kth_dist = D[:, -1]
+        score_dict = {}
+        for k in [5, 10, 20, 50, 100]:
+            kth_dist = D[:, k - 1]
+            score_dict[f"knn_{k}"] = -torch.from_numpy(kth_dist)
+        
         _, pred = torch.max(torch.softmax(output, dim=1), dim=1)
         return {
-            "scores": -torch.from_numpy(kth_dist),
+            "score_dict": score_dict,
             "preds": pred
         }
 

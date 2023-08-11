@@ -157,12 +157,14 @@ class OSA(BaseDetector):
         score_dict = {}
         # OSA-inv
         scores = (projs * self._cated_weights).view(features.shape[0], self._num_classes, -1).sum(dim=-1)
-        scores = scores[torch.arange(preds.shape[0]), preds]
+        # scores = scores[torch.arange(preds.shape[0]), preds]
+        scores = scores.min(dim=-1)[0]
         score_dict["osa-inv"] = -scores.cpu()
 
         # OSA-full
         scores = projs.view(features.shape[0], self._num_classes, -1).sum(dim=-1)
-        scores = scores[torch.arange(preds.shape[0]), preds]
+        # scores = scores[torch.arange(preds.shape[0]), preds]
+        scores = scores.min(dim=-1)[0]
         score_dict["osa-full"] = -scores.cpu()
 
         

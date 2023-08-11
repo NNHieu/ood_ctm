@@ -1,0 +1,6 @@
+init_params:
+  _target_: model_zoo.resnet_knn.resnet18_cifar
+  num_classes: 10
+ckpt_path: ${paths.ckpt_root}/checkpoints_knn/CIFAR-10/resnet18/checkpoint_100.pth.tar
+data_mean: [0.4914, 0.4822, 0.4465]
+data_std: [0.2023, 0.1994, 0.2010]

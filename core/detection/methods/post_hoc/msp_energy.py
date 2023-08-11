@@ -28,14 +28,17 @@ class MSPDetector(BaseDetector):
     def score_batch(self, forward_fn, data):
         # logits = forward_fn(data, return_feature_list=False)
         logits, feat_list = forward_fn(data, return_feature_list=True)
-        feats = feat_list[0]
-        # feats = ash_s(feats.view(feats.shape[0], -1, 1, 1)).view_as(feats)
-        logits = forward_fn(feats, penultimate_feature=True)
+        # feats = feat_list[0]
+        # # feats = ash_s(feats.view(feats.shape[0], -1, 1, 1)).view_as(feats)
+        # logits = forward_fn(feats, penultimate_feature=True)
         probs = F.softmax(logits, dim=1)
         preds = torch.argmax(logits, dim=1)
         return {
             "score_dict": {"msp": self.score_fn(probs, logits), 
-                       f"energy_{self.T}": -energy_score(probs, logits, self.T), 
+                       f"energy_{1.0}": -energy_score(probs, logits, 1.0), 
+                       f"energy_{0.5}": -energy_score(probs, logits, 0.5), 
+                       f"energy_{1.5}": -energy_score(probs, logits, 1.5), 
+                       f"energy_{2.0}": -energy_score(probs, logits, 2.0), 
                         "mls": logits.max(dim=-1).values,
                     },
             "preds": preds

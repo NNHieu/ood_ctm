@@ -275,7 +275,7 @@ class ResNet(nn.Module):
             state_dict = tm["state_dict"]
         else:
             state_dict = tm.state_dict()
-        del state_dict["fc.weight"], state_dict["fc.bias"]
+        # del state_dict["fc.weight"], state_dict["fc.bias"]
         self.load_state_dict(state_dict, strict=False)
 
 

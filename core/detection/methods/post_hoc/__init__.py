@@ -1,7 +1,7 @@
 from .msp_energy import EnergyBasedDetector, MSPDetector, MLSDetector
 from .odin import ODINDetector
 from .mahalanobis import MahalanobisDetector
-# from .knn import KNNPostprocessor
+from .knn import KNNPostprocessor
 from .ctm import CTMDetector
 from .osa import OSA
 

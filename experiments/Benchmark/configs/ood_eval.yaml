@@ -9,7 +9,7 @@ defaults:
 task_name: ood_eval
 run_name: ${now:%Y-%m-%d}_${now:%H-%M-%S}
 in_dataset: cifar10
-num_to_avg: 5
+num_to_avg: 10
 test_bs: 400
 prefetch: 4
 gpu_ids: [0,]

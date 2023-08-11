@@ -35,3 +35,125 @@ Mean Near-OOD Test Results
                          auroc       aupr   fpr
 detector    version                            
 OSA_layer=0 osa-inv  87.331335  88.112077  56.6
+
+[2023-08-07 18:28:58,783][core.detection.pipelines.standard][INFO] - Test Results!!!!!
+     id_data   ood_data  is_near     detector   version  num_runs      auroc       aupr        fpr  auroc_std  aupr_std   fpr_std
+0   cifar100       SVHN    False  OSA_layer=0   osa-inv         1  96.534555  93.926849  17.939459   0.000000  0.000000  0.000000
+1   cifar100       SVHN    False  OSA_layer=0  osa-full         1  97.569643  95.227222  12.227259   0.000000  0.000000  0.000000
+2   cifar100     LSUN-C    False  OSA_layer=0   osa-inv         1  96.868599  97.129819  17.920000   0.000000  0.000000  0.000000
+3   cifar100     LSUN-C    False  OSA_layer=0  osa-full         1  92.771300  92.763031  33.340000   0.000000  0.000000  0.000000
+4   cifar100     LSUN-R    False  OSA_layer=0   osa-inv         1  94.593758  94.998513  28.280000   0.000000  0.000000  0.000000
+5   cifar100     LSUN-R    False  OSA_layer=0  osa-full         1  87.928131  89.200932  54.020000   0.000000  0.000000  0.000000
+6   cifar100       iSUN    False  OSA_layer=0   osa-inv         1  95.087918  95.789697  25.781513   0.000000  0.000000  0.000000
+7   cifar100       iSUN    False  OSA_layer=0  osa-full         1  89.875449  91.413348  47.070028   0.000000  0.000000  0.000000
+8   cifar100   Textures    False  OSA_layer=0   osa-inv         1  95.527746  97.194324  20.000000   0.000000  0.000000  0.000000
+9   cifar100   Textures    False  OSA_layer=0  osa-full         1  95.314449  97.038595  21.436170   0.000000  0.000000  0.000000
+10  cifar100  Places365    False  OSA_layer=0   osa-inv         5  69.275685  70.952207  88.548000   0.187824  0.229825  0.207596
+11  cifar100  Places365    False  OSA_layer=0  osa-full         5  70.999126  70.756798  85.986000   0.286616  0.302690  0.404455
+12  cifar100   CIFAR-10     True  OSA_layer=0   osa-inv         1  58.181871  60.917695  95.360000   0.000000  0.000000  0.000000
+13  cifar100   CIFAR-10     True  OSA_layer=0  osa-full         1  65.088594  65.762358  91.330000   0.000000  0.000000  0.000000
+/home/cyanos/Workspace/ood-osa-code/core/detection/pipelines/standard.py:45: FutureWarning: The default value of numeric_only in DataFrameGroupBy.mean is deprecated. In a future version, numeric_only will default to False. Either specify numeric_only or select only columns which should be valid for the function.
+  logger.info(f"Mean Far-OOD Test Results\n{far_df.groupby(['detector', 'version']).mean()[['auroc', 'aupr', 'fpr']]}")
+[2023-08-07 18:28:58,787][core.detection.pipelines.standard][INFO] - Mean Far-OOD Test Results
+                         auroc       aupr        fpr
+detector    version                                 
+OSA_layer=0 osa-full  89.07635  89.399988  42.346576
+            osa-inv   91.31471  91.665235  33.078162
+/home/cyanos/Workspace/ood-osa-code/core/detection/pipelines/standard.py:46: FutureWarning: The default value of numeric_only in DataFrameGroupBy.mean is deprecated. In a future version, numeric_only will default to False. Either specify numeric_only or select only columns which should be valid for the function.
+  logger.info(f"Mean Near-OOD Test Results\n{near_df.groupby(['detector', 'version']).mean()[['auroc', 'aupr', 'fpr']]}")
+[2023-08-07 18:28:58,790][core.detection.pipelines.standard][INFO] - Mean Near-OOD Test Results
+                          auroc       aupr    fpr
+detector    version                              
+OSA_layer=0 osa-full  65.088594  65.762358  91.33
+            osa-inv   58.181871  60.917695  95.36
+
+    id_data   ood_data  is_near     detector   version  num_runs      auroc       aupr        fpr  auroc_std  aupr_std   fpr_std
+0   cifar10       SVHN    False  OSA_layer=0   osa-inv         1  99.414438  98.576329   3.242163   0.000000  0.000000  0.000000
+1   cifar10       SVHN    False  OSA_layer=0  osa-full         1  99.027468  97.815156   5.439459   0.000000  0.000000  0.000000
+2   cifar10     LSUN-C    False  OSA_layer=0   osa-inv         1  99.355360  99.358611   3.140000   0.000000  0.000000  0.000000
+3   cifar10     LSUN-C    False  OSA_layer=0  osa-full         1  98.030441  98.093665  11.150000   0.000000  0.000000  0.000000
+4   cifar10     LSUN-R    False  OSA_layer=0   osa-inv         1  98.389894  98.497713   8.980000   0.000000  0.000000  0.000000
+5   cifar10     LSUN-R    False  OSA_layer=0  osa-full         1  98.275821  98.396878   9.700000   0.000000  0.000000  0.000000
+6   cifar10       iSUN    False  OSA_layer=0   osa-inv         1  98.278096  98.514421   9.613445   0.000000  0.000000  0.000000
+7   cifar10       iSUN    False  OSA_layer=0  osa-full         1  98.066783  98.336668  10.565826   0.000000  0.000000  0.000000
+8   cifar10   Textures    False  OSA_layer=0   osa-inv         1  96.771263  98.013998  16.081560   0.000000  0.000000  0.000000
+9   cifar10   Textures    False  OSA_layer=0  osa-full         1  96.631294  97.994284  17.890071   0.000000  0.000000  0.000000
+10  cifar10  Places365    False  OSA_layer=0   osa-inv         5  84.343805  85.554544  66.506000   0.134502  0.177145  0.436193
+11  cifar10  Places365    False  OSA_layer=0  osa-full         5  88.141560  88.465421  55.214000   0.121146  0.227256  0.279757
+12  cifar10  CIFAR-100     True  OSA_layer=0   osa-inv         1  83.572053  84.839075  67.570000   0.000000  0.000000  0.000000
+13  cifar10  CIFAR-100     True  OSA_layer=0  osa-full         1  87.390888  87.954925  58.060000   0.000000  0.000000  0.000000
+/home/cyanos/Workspace/ood-osa-code/core/detection/pipelines/standard.py:45: FutureWarning: The default value of numeric_only in DataFrameGroupBy.mean is deprecated. In a future version, numeric_only will default to False. Either specify numeric_only or select only columns which should be valid for the function.
+  logger.info(f"Mean Far-OOD Test Results\n{far_df.groupby(['detector', 'version']).mean()[['auroc', 'aupr', 'fpr']]}")
+[2023-08-07 18:32:34,923][core.detection.pipelines.standard][INFO] - Mean Far-OOD Test Results
+                          auroc       aupr        fpr
+detector    version                                  
+OSA_layer=0 osa-full  96.362228  96.517012  18.326559
+            osa-inv   96.092143  96.419269  17.927195
+/home/cyanos/Workspace/ood-osa-code/core/detection/pipelines/standard.py:46: FutureWarning: The default value of numeric_only in DataFrameGroupBy.mean is deprecated. In a future version, numeric_only will default to False. Either specify numeric_only or select only columns which should be valid for the function.
+  logger.info(f"Mean Near-OOD Test Results\n{near_df.groupby(['detector', 'version']).mean()[['auroc', 'aupr', 'fpr']]}")
+[2023-08-07 18:32:34,925][core.detection.pipelines.standard][INFO] - Mean Near-OOD Test Results
+                          auroc       aupr    fpr
+detector    version                              
+OSA_layer=0 osa-full  87.390888  87.954925  58.06
+            osa-inv   83.572053  84.839075  67.57
+------------------------------------------------------ Main -----------------------------------------------------------------------
+[2023-08-07 18:35:56,395][core.detection.pipelines.standard][INFO] - Test Results!!!!!
+    id_data   ood_data  is_near     detector   version  num_runs      auroc       aupr        fpr  auroc_std  aupr_std   fpr_std
+0   cifar10       SVHN    False  OSA_layer=0   osa-inv         1  99.123545  98.023665   4.632760   0.000000  0.000000  0.000000
+1   cifar10       SVHN    False  OSA_layer=0  osa-full         1  99.027466  97.815158   5.439459   0.000000  0.000000  0.000000
+2   cifar10     LSUN-C    False  OSA_layer=0   osa-inv         1  99.082988  99.126746   5.120000   0.000000  0.000000  0.000000
+3   cifar10     LSUN-C    False  OSA_layer=0  osa-full         1  98.030437  98.093658  11.150000   0.000000  0.000000  0.000000
+4   cifar10     LSUN-R    False  OSA_layer=0   osa-inv         1  98.808182  98.967802   5.540000   0.000000  0.000000  0.000000
+5   cifar10     LSUN-R    False  OSA_layer=0  osa-full         1  98.275822  98.396873   9.700000   0.000000  0.000000  0.000000
+6   cifar10       iSUN    False  OSA_layer=0   osa-inv         1  98.780460  99.020807   5.904762   0.000000  0.000000  0.000000
+7   cifar10       iSUN    False  OSA_layer=0  osa-full         1  98.066793  98.336672  10.565826   0.000000  0.000000  0.000000
+8   cifar10   Textures    False  OSA_layer=0   osa-inv         1  96.337979  97.842700  19.468085   0.000000  0.000000  0.000000
+9   cifar10   Textures    False  OSA_layer=0  osa-full         1  96.631316  97.994300  17.890071   0.000000  0.000000  0.000000
+10  cifar10  Places365    False  OSA_layer=0   osa-inv         5  90.787418  91.018465  44.600000   0.119685  0.193028  0.319061
+11  cifar10  Places365    False  OSA_layer=0  osa-full         5  88.141526  88.465382  55.216000   0.121139  0.227247  0.279185
+12  cifar10  CIFAR-100     True  OSA_layer=0   osa-inv         1  89.002806  89.747106  52.490000   0.000000  0.000000  0.000000
+13  cifar10  CIFAR-100     True  OSA_layer=0  osa-full         1  87.390872  87.954878  58.060000   0.000000  0.000000  0.000000
+/home/cyanos/Workspace/ood-osa-code/core/detection/pipelines/standard.py:45: FutureWarning: The default value of numeric_only in DataFrameGroupBy.mean is deprecated. In a future version, numeric_only will default to False. Either specify numeric_only or select only columns which should be valid for the function.
+  logger.info(f"Mean Far-OOD Test Results\n{far_df.groupby(['detector', 'version']).mean()[['auroc', 'aupr', 'fpr']]}")
+[2023-08-07 18:35:56,399][core.detection.pipelines.standard][INFO] - Mean Far-OOD Test Results
+                          auroc       aupr        fpr
+detector    version                                  
+OSA_layer=0 osa-full  96.362227  96.517007  18.326893
+            osa-inv   97.153428  97.333364  14.210934
+/home/cyanos/Workspace/ood-osa-code/core/detection/pipelines/standard.py:46: FutureWarning: The default value of numeric_only in DataFrameGroupBy.mean is deprecated. In a future version, numeric_only will default to False. Either specify numeric_only or select only columns which should be valid for the function.
+  logger.info(f"Mean Near-OOD Test Results\n{near_df.groupby(['detector', 'version']).mean()[['auroc', 'aupr', 'fpr']]}")
+[2023-08-07 18:35:56,402][core.detection.pipelines.standard][INFO] - Mean Near-OOD Test Results
+                          auroc       aupr    fpr
+detector    version                              
+OSA_layer=0 osa-full  87.390872  87.954878  58.06
+            osa-inv   89.002806  89.747106  52.49
+
+    id_data   ood_data  is_near     detector   version  num_runs      auroc       aupr        fpr  auroc_std  aupr_std   fpr_std
+0   cifar100       SVHN    False  OSA_layer=0   osa-inv         1  96.371871  93.832832  21.027966   0.000000  0.000000  0.000000
+1   cifar100       SVHN    False  OSA_layer=0  osa-full         1  97.569633  95.227174  12.227259   0.000000  0.000000  0.000000
+2   cifar100     LSUN-C    False  OSA_layer=0   osa-inv         1  96.875988  97.012351  16.570000   0.000000  0.000000  0.000000
+3   cifar100     LSUN-C    False  OSA_layer=0  osa-full         1  92.771277  92.762994  33.340000   0.000000  0.000000  0.000000
+4   cifar100     LSUN-R    False  OSA_layer=0   osa-inv         1  86.704001  87.337526  51.020000   0.000000  0.000000  0.000000
+5   cifar100     LSUN-R    False  OSA_layer=0  osa-full         1  87.928107  89.200911  54.020000   0.000000  0.000000  0.000000
+6   cifar100       iSUN    False  OSA_layer=0   osa-inv         1  87.922377  89.160896  46.733894   0.000000  0.000000  0.000000
+7   cifar100       iSUN    False  OSA_layer=0  osa-full         1  89.875436  91.413336  47.070028   0.000000  0.000000  0.000000
+8   cifar100   Textures    False  OSA_layer=0   osa-inv         1  94.525807  96.733841  26.631206   0.000000  0.000000  0.000000
+9   cifar100   Textures    False  OSA_layer=0  osa-full         1  95.314470  97.038610  21.436170   0.000000  0.000000  0.000000
+10  cifar100  Places365    False  OSA_layer=0   osa-inv         5  77.455731  78.486622  78.762000   0.225299  0.282836  0.475874
+11  cifar100  Places365    False  OSA_layer=0  osa-full         5  70.999046  70.756710  85.986000   0.286609  0.302708  0.404455
+12  cifar100   CIFAR-10     True  OSA_layer=0   osa-inv         1  69.384554  70.795164  87.910000   0.000000  0.000000  0.000000
+13  cifar100   CIFAR-10     True  OSA_layer=0  osa-full         1  65.088622  65.762456  91.330000   0.000000  0.000000  0.000000
+/home/cyanos/Workspace/ood-osa-code/core/detection/pipelines/standard.py:45: FutureWarning: The default value of numeric_only in DataFrameGroupBy.mean is deprecated. In a future version, numeric_only will default to False. Either specify numeric_only or select only columns which should be valid for the function.
+  logger.info(f"Mean Far-OOD Test Results\n{far_df.groupby(['detector', 'version']).mean()[['auroc', 'aupr', 'fpr']]}")
+[2023-08-07 18:40:40,563][core.detection.pipelines.standard][INFO] - Mean Far-OOD Test Results
+                          auroc       aupr        fpr
+detector    version                                  
+OSA_layer=0 osa-full  89.076328  89.399956  42.346576
+            osa-inv   89.975962  90.427345  40.124177
+/home/cyanos/Workspace/ood-osa-code/core/detection/pipelines/standard.py:46: FutureWarning: The default value of numeric_only in DataFrameGroupBy.mean is deprecated. In a future version, numeric_only will default to False. Either specify numeric_only or select only columns which should be valid for the function.
+  logger.info(f"Mean Near-OOD Test Results\n{near_df.groupby(['detector', 'version']).mean()[['auroc', 'aupr', 'fpr']]}")
+[2023-08-07 18:40:40,566][core.detection.pipelines.standard][INFO] - Mean Near-OOD Test Results
+                          auroc       aupr    fpr
+detector    version                              
+OSA_layer=0 osa-full  65.088622  65.762456  91.33
+            osa-inv   69.384554  70.795164  87.91

@@ -34,11 +34,14 @@ class CTMDetector(BaseDetector):
         device = net.fc.weight.data.device
         ref_dir ={
             "class_mean": F.normalize(class_means, dim=-1).to(device),
+            # "class_mean": class_means.to(device),
+
             "last_weight": F.normalize(net.fc.weight.data, dim=-1).to(device),
             "shifted_class_mean": F.normalize(class_means + self._shift, dim=-1).to(device),
             "shifted_last_weight": F.normalize(net.fc.weight.data, dim=-1).to(device),
             "global_mean": F.normalize(global_mean, dim=-1).to(device),
         }
+        self._last_weight_norms = torch.norm(net.fc.weight.data, dim=-1)
         self._ref_dir = ref_dir
         # self._ref_dir = F.normalize(net.fc.weight.data, dim=-1)
     
@@ -73,8 +76,9 @@ class CTMDetector(BaseDetector):
                     probs = F.softmax(feats @ self._ref_dir["last_weight"].T, dim=-1)
                     C = probs.shape[1]
                     probs_norms = torch.norm(probs, dim=-1, keepdim=True)
-                    if_probs = (probs - 1/C) / torch.sqrt(((1 - 1/C) * (probs_norms**2 - 1/C) ))
-                    if_scores = (if_probs * logits)
+                    # if_probs = (probs - 1/C) / torch.sqrt(((1 - 1/C) * (probs_norms**2 - 1/C) ))
+                    weights_norms = self._last_weight_norms
+                    if_scores = (weights_norms.unsqueeze(0) * logits)
                     if_scores = if_scores[torch.arange(preds.shape[0]), preds]
                     # if_scores = if_scores.max(dim=-1).values
                     scores['influence'] = if_scores.cpu()
