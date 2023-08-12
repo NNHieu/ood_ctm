@@ -8,6 +8,5 @@ class_dir: mean
 add_bg_score: False
 weight_type: inv
 remove_mean_dir: True
-cache_feats: null
-cache_pca: null
+cache: null
 device: null

@@ -133,3 +133,4 @@ outputs/
 host_data
 .DS_Store
 checkpoints/
+cached/

@@ -27,7 +27,7 @@ def mean_and_normalize_list_features(features_by_class):
 
 
 class OSA(BaseDetector):
-    def __init__(self, *, layer_index, rank_rtol, class_dir='mean', add_bg_score: bool, weight_type="inv", remove_mean_dir=True, cache_pca=None, cache_feats=None, device=None, **kwargs) -> None:
+    def __init__(self, *, layer_index, rank_rtol, class_dir='mean', add_bg_score: bool, weight_type="inv", remove_mean_dir=True, cache=None, device=None, **kwargs) -> None:
         super().__init__("OSA")
         self.layer_index = layer_index
         self.rank_rtol = rank_rtol
@@ -35,9 +35,9 @@ class OSA(BaseDetector):
         self.weight_type = weight_type
         self.remove_mean_dir = remove_mean_dir
         self.class_dir = class_dir
-
-        self.cache_pca = cache_pca
-        self.cache_feats = cache_feats
+        if cache is not None:
+            self.cache = Path(cache)
+            self.cache.parent.mkdir(parents=True, exist_ok=True)
         self.device = device
 
     def _forward_collect(self, forward_fn, data, device=None):
@@ -54,13 +54,18 @@ class OSA(BaseDetector):
 
     @torch.no_grad()
     def adapt(self, forward_fn, train_loader, *, net, **kwargs):
+        loaded_cache = False
         adapter = CalCovClassWise(layer_index=self.layer_index)
+        if self.cache is not None and self.cache.exists():
+            print(f"Loading cached class means from {self.cache}")
+            adapter.load_cached_state(self.cache)
+            loaded_cache = True
         adapter.adapt(forward_fn, 
                       train_loader, 
-                      cache_feats_path=self.cache_feats, 
-                      cache_pca_path=self.cache_pca, 
-                      device=self.device,
                       centering=False)
+        
+        if not loaded_cache and self.cache is not None:
+            adapter.save_cached_state(self.cache)
         
         print(adapter.ranks_)
 
