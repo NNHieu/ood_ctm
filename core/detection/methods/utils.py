@@ -109,10 +109,34 @@ class CalMeanClass:
 
     def adapt(self, forward_fn, train_loader, *, cache_feats_path=None, cache_mean_path=None, normalize=False, **kwargs):
         with torch.no_grad():
-            class_means, global_mean = self._adapt(forward_fn, train_loader)
+            self.class_means_, self.global_mean_ = self._adapt(forward_fn, train_loader)
         if cache_mean_path is not None:
-            torch.save((class_means, global_mean), cache_mean_path)
-        return class_means, global_mean
+            torch.save((self.class_means_, self.global_mean_), cache_mean_path)
+        return self.class_means_, self.global_mean_
+
+    def _get_state(self):
+        '''
+        Return a dict of state includes:
+            class_means: tensor of class means
+            global_mean: tensor of global mean
+        '''
+        return {
+            'layer_index': self.layer_index,
+            'class_means': self.class_means_,
+            'global_mean': self.global_mean_,
+        }
+
+    def _set_state(self, state_dict):
+        self.layer_index = state_dict['layer_index']
+        self.class_means_ = state_dict['class_means']
+        self.global_mean_ = state_dict['global_mean']
+
+    def save_cached_state(self, path):
+        torch.save(self._get_state(), path)
+    
+    def load_cached_state(self, path):
+        state_dict = torch.load(path)
+        self._set_state(state_dict)
     
 class CalCovClassWise:
     '''
@@ -122,6 +146,7 @@ class CalCovClassWise:
     def __init__(self, layer_index=0) -> None:
         super().__init__()
         self.layer_index = layer_index
+        self._state = None
 
     def _forward_collect(self, forward_fn, data):
         logits, features_list = forward_fn(data, return_feature_list=True)
@@ -130,18 +155,14 @@ class CalCovClassWise:
         preds = probs.argmax(-1).squeeze()
         return features, probs, preds
 
-
-    def _runtime_adapt(self, forward_fn, train_loader, *,cache_feats_path=None, cache_mean_path=None, normalize=False, centering=False, **kwargs):
+    def _gen_state(self, forward_fn, train_loader):
         # Get a sample batch to get the feature size
         with torch.no_grad():
             b_features, probs, preds = self._forward_collect(forward_fn, next(iter(train_loader)))
             batch_size, feat_size = b_features.shape
             num_classes = probs.shape[-1]
             device = b_features.device
-        
-        # device = 'cpu'
 
-        # transformers = [IncrementalPCA(n_components=feat_size, batch_size=batch_size) for _ in range(num_classes)]
         Covs = [torch.zeros(feat_size, feat_size).to(device) for _ in range(num_classes)]
         counts = [0 for _ in range(num_classes)]
         class_means = torch.zeros(num_classes, feat_size).to(device)
@@ -154,7 +175,7 @@ class CalCovClassWise:
 
             # b_features = b_features.cpu().numpy()
             # labels = labels.cpu().numpy()
-            class_features_list = list_feature_by_class(b_features, labels, preds)
+            class_features_list = list_feature_by_class(b_features, preds)
             for c in class_features_list.keys():
                 num_new = class_features_list[c].shape[0]
                 # Cov = Cov * (counts[c]/(counts[c] + num_new)) + (class_features_list[c].T @ class_features_list[c]) * (1/(counts[c] + num_new))
@@ -163,15 +184,32 @@ class CalCovClassWise:
                 class_means[c] += class_features_list[c].sum(axis=0)
                 counts[c] += num_new
         counts = torch.tensor(counts).to(device)
-        global_mean = class_means.sum(dim=0, keepdim=True) / counts.sum()
-        class_means = class_means / counts.unsqueeze(-1)
+        
+        self._state = {
+            'layer_index': self.layer_index,
+            'class_sums': class_means,
+            'Cov_sums': Covs,
+            'counts': counts,
+            'feat_size': feat_size,
+            'num_classes': num_classes,
+        }
+
+    def _runtime_adapt(self, forward_fn, train_loader, *, normalize=False, centering=False):
+        class_sums = self._state['class_sums']
+        Cov_sums = self._state['Cov_sums']
+        counts = self._state['counts']
+        num_classes = self._state['num_classes']
+        # device = 'cpu'
+
+        global_mean = class_sums.sum(dim=0, keepdim=True) / counts.sum()
+        class_means = class_sums / counts.unsqueeze(-1)
 
         # shift all features to global mean
         if centering:
             # class_means -= counts.unsqueeze(-1) * global_mean
             class_means -= global_mean
             for c in range(num_classes):
-                Covs[c] -= counts[c] * global_mean.T @ global_mean
+                Cov_sums[c] -= counts[c] * global_mean.T @ global_mean
 
         class_mean_dirs = F.normalize(class_means, dim=-1)
         
@@ -184,7 +222,7 @@ class CalCovClassWise:
         # Cov = torch.sum(Covs, dim=0) / counts.sum()
 
         for c in range(num_classes):
-            Cov = Covs[c] / counts[c]
+            Cov = Cov_sums[c] / counts[c]
             class_mean_dir = class_mean_dirs[c]
             u_u_T = class_mean_dir.unsqueeze(-1) @ class_mean_dir.unsqueeze(0)
             processed_cov = Cov - Cov @ u_u_T - u_u_T @ Cov + u_u_T @ Cov @ u_u_T
@@ -203,28 +241,10 @@ class CalCovClassWise:
         self.ranks_ = ranks
 
     def _get_state(self):
-        '''
-        Return a dict of state includes:
-            components: list of U matrices
-            singular_values: list of S vectors
-            class_means: tensor of class means
-            class_mean_dirs: tensor of class mean directions
-            global_mean: tensor of global mean
-        '''
-        return {
-            'components': self.components_,
-            'singular_values': self.singular_values_,
-            'class_means': self.class_means_,
-            'class_mean_dirs': self.class_mean_dirs_,
-            'global_mean': self.global_mean_,
-        }
+        return self._state
 
     def _set_state(self, state_dict):
-        self.components_ = state_dict['components']
-        self.singular_values_ = state_dict['singular_values']
-        self.class_means_ = state_dict['class_means']
-        self.class_mean_dirs_ = state_dict['class_mean_dirs']
-        self.global_mean_ = state_dict['global_mean']
+        self._state = state_dict
 
     def save_cached_state(self, path):
         torch.save(self._get_state(), path)
@@ -233,5 +253,7 @@ class CalCovClassWise:
         state_dict = torch.load(path)
         self._set_state(state_dict)
 
-    def adapt(self, forward_fn, train_loader, *,cache_feats_path=None, cache_mean_path=None, normalize=False, **kwargs):
-        self._runtime_adapt(forward_fn, train_loader, cache_feats_path=cache_feats_path, cache_mean_path=cache_mean_path, normalize=normalize, **kwargs)
+    def adapt(self, forward_fn, train_loader, *, normalize=False, **kwargs):
+        if self._state is None:
+            self._gen_state(forward_fn, train_loader)
+        self._runtime_adapt(forward_fn, train_loader, normalize=normalize, **kwargs)

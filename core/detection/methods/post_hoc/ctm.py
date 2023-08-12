@@ -23,13 +23,18 @@ class CTMDetector(BaseDetector):
     
     @torch.no_grad()
     def adapt(self, forward_fn, ref_id_dataloader, *, net, **kwargs):
+        calmean = CalMeanClass(layer_index = self.layer_index)
         if self.cache_class_means is not None and self.cache_class_means.exists():
             print(f"Loading cached class means from {self.cache_class_means}")
-            class_means, global_mean = torch.load(self.cache_class_means)
+            calmean.load_cached_state(self.cache_class_means)
         else:
-            calmean = CalMeanClass(layer_index = self.layer_index)
-            class_means, global_mean = calmean.adapt(forward_fn, ref_id_dataloader, cache_feats_path=self.cache_feats, cache_mean_path=self.cache_class_means, normalize=False)
+            calmean.adapt(forward_fn, ref_id_dataloader, cache_feats_path=self.cache_feats, cache_mean_path=self.cache_class_means, normalize=False)
+            if self.cache_class_means is not None:
+                calmean.save_cached_state(self.cache_class_means)
         
+        class_means = calmean.class_means_
+        global_mean = calmean.global_mean_
+
         self._shift =  -global_mean
         device = net.fc.weight.data.device
         ref_dir ={
