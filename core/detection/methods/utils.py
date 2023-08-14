@@ -127,9 +127,9 @@ class CalMeanClass:
         }
 
     def _set_state(self, state_dict):
-        self.layer_index = state_dict['layer_index']
-        self.class_means_ = state_dict['class_means']
-        self.global_mean_ = state_dict['global_mean']
+        self.layer_index = 0 # state_dict['layer_index']
+        self.class_means_ = state_dict[0] # state_dict['class_means']
+        self.global_mean_ = state_dict[1] # state_dict['global_mean']
 
     def save_cached_state(self, path):
         torch.save(self._get_state(), path)

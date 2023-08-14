@@ -4,3 +4,4 @@ defaults:
 classname: KNNPostprocessor
 K: 50
 layer_index: 0
+cache: null

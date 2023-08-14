@@ -35,6 +35,7 @@ class OSA(BaseDetector):
         self.weight_type = weight_type
         self.remove_mean_dir = remove_mean_dir
         self.class_dir = class_dir
+        self.cache = None
         if cache is not None:
             self.cache = Path(cache)
             self.cache.parent.mkdir(parents=True, exist_ok=True)

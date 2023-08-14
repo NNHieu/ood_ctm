@@ -9,6 +9,7 @@ import torchvision.datasets as dset
 from core.detection.datasets import ImageFolderOOD
 from PIL import Image
 from typing import Callable, Optional
+import datasets
 
 from PIL import Image
 from torchvision.datasets import CIFAR10, CIFAR100, ImageFolder
@@ -43,13 +44,16 @@ DATASETS = {
     'cifar10': {
         # 'far': ['svhn', 'lsun-c', 'lsun-r', 'isun', 'textures',], # 'places365'],
         # 'far': ['svhn', 'lsun-c', 'lsun-r', 'isun', 'textures', 'places365'],
-        'far': [],
-        'near': ['cifar100']
+        # 'far': ['svhn', 'lsun-c', 'lsun-r', 'isun', 'textures', 'places365'],
+        'far': ['tinyimagenet'],
+        # 'near': ['cifar100']
+        'near': [],
     },
     'cifar100': {
         # 'far': ['svhn', 'lsun-c', 'lsun-r', 'isun', 'textures', ], # 'places365'],
-        # 'far': ['svhn', 'lsun-c', 'lsun-r', 'isun', 'textures', 'places365'],
-        'far': [],
+        'far': ['svhn', 'lsun-c', 'lsun-r', 'isun', 'textures', 'places365', ],
+        # 'far': ['tinyimagenet'],
+        # 'far': [],
 
         'near': ['cifar10']
     },
@@ -75,9 +79,11 @@ ID2PRINTNAME = {
     'sun': "SUN",
     'places': "Places",
     'imagenet': "ImageNet",
+    'tinyimagenet': "TinyImageNet",
 }
 
 def get_id_transform(in_dataset_name,aug=False):
+    # in_dataset_name = 'imagenet'
     '''Returns a transform for the in-distribution dataset'''
     # remove_background = trn.Compose([trn.CenterCrop((30,30)), trn.Pad(32 - 30, fill=CIFAR10_MEAN)])
     if in_dataset_name == 'cifar10' or in_dataset_name == 'cifar100':
@@ -108,6 +114,15 @@ def get_id_transform(in_dataset_name,aug=False):
         
 def get_ood_dataset_builder(DATA_ROOT):
     '''Returns a function that builds a dataset given a name'''
+    def build_tiny_imagenet(transform):
+        ds = datasets.load_dataset('zh-plus/tiny-imagenet', split='valid').with_format('torch')
+        def wrap_transform(examples):
+            examples["pixel_values"] = [transform(image.convert("RGB")) for image in examples["image"]]
+            return examples["pixel_values"], examples["label"]
+        ds.set_transform(wrap_transform)
+        return ds
+
+
     return {
         'mnist': partial(dset.MNIST, root= DATA_ROOT, train=False),
         'svhn': partial(dset.SVHN, root= DATA_ROOT / 'SVHN', split="test"),
@@ -123,6 +138,8 @@ def get_ood_dataset_builder(DATA_ROOT):
         'sun': partial(ImageFolderOOD, root=DATA_ROOT / 'SUN'),
         'cifar10': partial(dset.CIFAR10, root= DATA_ROOT, train=False),
         'cifar100': partial(dset.CIFAR100, root= DATA_ROOT, train=False),
+        'tinyimagenet': partial(ImageFolderOOD, root=DATA_ROOT / 'tiny-imagenet-200' / 'val'),
+        # 'tinyimagenet': build_tiny_imagenet,
     }
 
 
@@ -138,7 +155,7 @@ def _random_subset(dataset, num_examples_per_class, seed):
     subset = Subset(dataset, inds)
     return subset
 
-def get_id_datasets_dict(DATA_ROOT: Path, in_dataset: str, test_transform=None):
+def get_id_datasets_dict(DATA_ROOT: Path, in_dataset: str, test_transform=None, subset_ref=None):
     '''Returns a dictionary of in-distribution datasets and metadata e.g. number of classes, etc.'''
     ds = {}
     logger.info(f"Loading ID dataset [{in_dataset}] from {DATA_ROOT}")
@@ -149,7 +166,8 @@ def get_id_datasets_dict(DATA_ROOT: Path, in_dataset: str, test_transform=None):
         ds["test"] = dset.CIFAR10(DATA_ROOT, train=False, transform=test_transform) # type: ignore
         classes = ds['train'].classes
         NUM_CLASSES = 10
-        ds['train'] = _random_subset(ds['train'], 1000, seed=42)
+        if subset_ref is not None:
+            ds['train'] = _random_subset(ds['train'], subset_ref, seed=42)
         logger.info(f"Loaded {len(ds['train'])} train and {len(ds['test'])} test examples from {in_dataset}")
 
     elif in_dataset == 'cifar100':
@@ -157,7 +175,8 @@ def get_id_datasets_dict(DATA_ROOT: Path, in_dataset: str, test_transform=None):
         ds["test"] = dset.CIFAR100(DATA_ROOT, train=False, transform=test_transform) # type: ignore
         classes = ds['train'].classes
         NUM_CLASSES = 100
-        ds['train'] = _random_subset(ds['train'], 100, seed=42)
+        if subset_ref is not None:
+            ds['train'] = _random_subset(ds['train'], subset_ref, seed=42)
         logger.info(f"Loaded {len(ds['train'])} train and {len(ds['test'])} test examples from {in_dataset}")
 
     elif in_dataset == 'imagenet':
@@ -185,8 +204,10 @@ def get_ood_datasets_dict(DATA_ROOT: Path, in_dataset: str, id_transform=None):
     OOD_DATASETS = {'far': {}, 'near': {}}
     for dataset_id in DATASETS[in_dataset]['far']:
         OOD_DATASETS['far'][ID2PRINTNAME[dataset_id]] = dataset_builder[dataset_id](transform=id_transform)
+        logger.info(f"Loaded OOD dataset [{dataset_id}] from {DATA_ROOT} with len {len(OOD_DATASETS['far'][ID2PRINTNAME[dataset_id]])}")
     for dataset_id in DATASETS[in_dataset]['near']:
         OOD_DATASETS['near'][ID2PRINTNAME[dataset_id]] = dataset_builder[dataset_id](transform=id_transform)
+        logger.info(f"Loaded OOD dataset [{dataset_id}] from {DATA_ROOT} with len {len(OOD_DATASETS['near'][ID2PRINTNAME[dataset_id]])}")
     return {
         "ds": OOD_DATASETS,
         "meta": {

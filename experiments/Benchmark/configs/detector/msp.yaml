@@ -3,4 +3,4 @@ defaults:
 
 classname: MSPDetector
 use_xent: False
-T: null
+T: 1.0

@@ -9,7 +9,7 @@ from pathlib import Path
 
 logger = logging.getLogger(__name__)
 
-def run(cfg, id_data_dict, ood_datasets_dict, forward_fn, net, detector, ood_num_examples):
+def run(cfg, id_data_dict, ood_datasets_dict, forward_fn, net, detector, ood_num_examples, eval_id_acc=False):
     NUM_CLASSES = id_data_dict['meta']['num_classes']    
 
     # /////////////// Detection Prelims ///////////////
@@ -22,9 +22,10 @@ def run(cfg, id_data_dict, ood_datasets_dict, forward_fn, net, detector, ood_num
     evaluator = Evaluator(ood_num_examples, cfg.test_bs, cfg.num_to_avg)
     logger.info("Using clean testset as id data")
     
-    id_acc = evaluator.eval_in_acc(
-        forward_fn, f"{cfg.in_dataset}", id_data_dict['ds']['test'])
-    logger.info(f"In-Dist Acc [{cfg.in_dataset}]: {id_acc*100:0.4f}%")
+    if eval_id_acc:
+        id_acc = evaluator.eval_in_acc(
+            forward_fn, f"{cfg.in_dataset}", id_data_dict['ds']['test'])
+        logger.info(f"In-Dist Acc [{cfg.in_dataset}]: {id_acc*100:0.4f}%")
     evaluator.compute_in_score(
         forward_fn, detector, f"{cfg.in_dataset}", id_data_dict['ds']['test'])
     
